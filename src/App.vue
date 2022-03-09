@@ -1,30 +1,38 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <FrontNavbar></FrontNavbar>
+  <router-view></router-view>
+  <FooterNavbar></FooterNavbar>
 </template>
+<script>
+import FrontNavbar from './components/FrontNavbar.vue';
+import FooterNavbar from './components/FooterNavbar.vue';
+
+export default {
+  components: {
+    FrontNavbar,
+    FooterNavbar,
+  },
+};
+</script>
 
 <style lang="scss">
+@import "./assets/stylesheets/all";
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  // font-family: Avenir, Helvetica, Arial, sans-serif;
+  // -webkit-font-smoothing: antialiased;
+  // -moz-osx-font-smoothing: grayscale;
+  // text-align: center;
+  // color: #2c3e50;
+  padding-bottom: 300px;
 }
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+html {
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  position: relative;
 }
 </style>
