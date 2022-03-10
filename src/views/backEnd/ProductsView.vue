@@ -1,72 +1,101 @@
 <template>
   <div class="container">
-    <button type="button" @click="showProductModel">後台產品列表</button>
-    <PagesView :pages="pagination" @emit-pages="getProducts"></PagesView>
-    <div class="mt-4">
-      <table class="table align-middle">
+    <div class="container">
+      <div class="text-end mt-4">
+        <button class="btn btn-primary" @click="showProductModel">
+          建立新的產品
+        </button>
+      </div>
+      <table class="table mt-4">
         <thead>
           <tr>
-            <th>圖片</th>
-            <th>商品名稱</th>
-            <th>價格</th>
-            <th></th>
+            <th width="120">
+              分類
+            </th>
+            <th>產品名稱</th>
+            <th width="120">
+              原價
+            </th>
+            <th width="120">
+              售價
+            </th>
+            <th width="100">
+              是否啟用
+            </th>
+            <th width="120">
+              編輯
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(product, index) in allProducts" :key="index">
-            <td style="width: 200px">
-              <div style="height: 100px; background-size: cover; background-position: center"
-                :style="{backgroundImage: `url(${product.imageUrl})`}"></div>
+          <tr v-for="(product, index) in products" :key="index">
+            <td>{{ product.category }}</td>
+            <td>{{ product.title }}</td>
+            <td class="text-end">{{ product.origin_price }}</td>
+            <td class="text-end">{{ product.price }}</td>
+            <td>
+              <span v-if="product.is_enabled" class="text-success">啟用</span>
+              <span v-else>未啟用</span>
             </td>
             <td>
-              {{ product.title }}
-            </td>
-            <td>
-              <!-- <div class="h5">{{  }} 元</div> -->
-              <del class="h6">原價 {{ product.origin_price }} 元</del>
-              <div class="h5">現在只要 {{ product.price }} 元</div>
-            </td>
-            <td>
-              <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-outline-secondary"
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary btn-sm"
                   @click="showProductModel(product)">
-                  <i v-if="loading" class="fas fa-spinner fa-pulse"></i>
-                  查看更多
+                  編輯
                 </button>
-                <button type="button" class="btn btn-outline-danger"
-                  @click="inputCart(product.id)">
-                  <i v-if="loading" class="fas fa-spinner fa-pulse"></i>
-                  加到購物車
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                  @click="showDeleteModal(product)">
+                  刪除
                 </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
-      <!-- 購物車列表 -->
-      <div class="text-end">
-        <button class="btn btn-outline-danger" type="button"
-          @click="deleteAllCart()">
-          清空購物車
-        </button>
-      </div>
     </div>
+    <PagesView :pages="pagination" @emit-pages="getProducts"></PagesView>
     <!-- modal -->
-    <!-- <div id="myModal" ref="myModal"
-      class="modal fade" tabindex="-1" aria-labelledby="productModalLabel">
-      <div style="background: black; height: 100px">
-        ss
-      </div>
-      <h1>ss</h1>
-    </div> -->
     <div class="modal" tabindex="-1" id="myModal" ref="myModal">
       <ModalView
+        :modaltitle="modalTitle"
         :product="product"
         :loading="loading"
+        :isediting="isEditing"
         @hide-model="hideModel"
-        @delete-product="deleteProduct"
+        @edit-product="editProduct"
         @upload-product="uploadProduct"
       ></ModalView>
+    </div>
+    <!-- 刪除產品 Modal -->
+    <div id="delProductModal" ref="delModal" class="modal fade" tabindex="-1"
+      aria-labelledby="delProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content border-0">
+          <div class="modal-header bg-danger text-white">
+            <h5 id="delProductModalLabel" class="modal-title">
+              <span>刪除產品</span>
+            </h5>
+            <button type="button" class="btn-close" aria-label="Close"
+              @click="hideModal"></button>
+          </div>
+          <div class="modal-body">
+            是否刪除 {{ this.product.title }}
+            <strong class="text-danger"></strong> 商品(刪除後將無法恢復)。
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" @click="hideModal">
+              取消
+            </button>
+            <button v-if="!loading" type="button" class="btn btn-danger"
+              @click="deleteProduct(this.product)">
+              確認刪除
+            </button>
+            <div v-if="loading" class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -89,50 +118,29 @@ export default {
         total_pages: '3',
         has_pre: '1',
       },
-      allProducts: [],
       loading: false,
       loadInput: null,
       // modal
+      modalTitle: null,
+      isEditing: false,
       productModal: null,
+      deleteModal: null,
       product: {
         imagesUrl: [],
       },
     };
   },
   methods: {
-    getAllProducts() {
-      this.loading = true;
-      console.log(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/products/all`);
-      this.axios.get(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/products/all`)
-        .then((response) => {
-          this.allProducts = response.data.products;
-          console.log(this.allProducts, 'asd');
-          this.loading = false;
-        })
-        .catch(() => {
-          this.loading = false;
-        });
-    },
     getProducts(page = 1) {
       this.axios.get(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/products?page=${page}`)
         .then((response) => {
           console.log(response, 'getProducts');
-          this.allProducts = response.data.products;
+          this.products = response.data.products;
           this.pagination = response.data.pagination;
           this.loading = false;
         })
         .catch((error) => {
           console.log(error, 'getProducts');
-        });
-    },
-    deleteAllCart() {
-      this.axios.delete(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/carts`)
-        .then((response) => {
-          alert('刪除完成');
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error, 'error');
         });
     },
     inputCart(productId, qtys = 1) {
@@ -147,7 +155,6 @@ export default {
       this.axios.post(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/cart`, data)
         .then((response) => {
           this.loading = false;
-          // this.productModal.hide();
           console.log(response);
           alert('新增成功');
         })
@@ -156,29 +163,44 @@ export default {
           this.loading = false;
         });
     },
-    showProductModel() {
-      // this.product = product;
+    showProductModel(product) {
+      if (product.title) {
+        this.modalTitle = '編輯產品';
+        this.isEditing = true;
+        this.product = JSON.parse(JSON.stringify(product));
+      } else {
+        this.modalTitle = '新增產品';
+        this.isEditing = false;
+        this.product = {
+          imagesUrl: [],
+        };
+      }
       this.productModal.show();
+    },
+    showDeleteModal(product) {
+      this.deleteModal.show();
+      this.product = JSON.parse(JSON.stringify(product));
     },
     // modal
     hideModel() {
       this.productModal.hide();
-      // this.deleteModal.hide();
+      console.log('hide');
+      this.deleteModal.hide();
     },
     deleteProduct() {
       this.loading = true;
-      const url = 'https://vue3-course-api.hexschool.io/v2';
-      this.axios.delete(`${url}/api/ciye-project/admin/product/${this.product.id}`)
+      this.axios.delete(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.product.id}`)
         .then(() => {
+          alert('成功刪除');
           this.hideModel();
           this.getProducts();
         })
         .catch(() => {
         });
     },
-    uploadProduct() {
+    uploadProduct(data) {
+      this.product = data;
       this.loading = true;
-      const url = 'https://vue3-course-api.hexschool.io/v2';
       // console.log(this.product, 'this.product')
       // post 資料如果傳送沒有值的陣列，取回來的資料就就不會有"imagesUrl"這個屬性，造成編譯錯誤
       if (this.product.imagesUrl.length === 0) {
@@ -187,7 +209,8 @@ export default {
       const postProduct = {
         data: this.product,
       };
-      this.axios.post(`${url}/api/ciye-project/admin/product`, postProduct)
+      console.log(postProduct, data, 'postProduct');
+      this.axios.post(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product`, postProduct)
         .then((response) => {
           this.loading = false;
           console.log(response, 'response');
@@ -201,10 +224,39 @@ export default {
           this.loading = false;
         });
     },
+    editProduct(data) {
+      this.product = data;
+      this.loading = true;
+      const postProduct = {
+        data: this.product,
+      };
+      this.axios.put(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/product/${this.product.id}`, postProduct)
+        .then((response) => {
+          console.log(response, 'edit');
+          this.hideModel();
+          this.getProducts();
+        })
+        .catch(() => {
+        });
+    },
+    signinCheck() {
+      const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
+      this.axios.defaults.headers.common.Authorization = token;
+      this.loading = true;
+      this.axios.post(` ${process.env.VUE_APP_API}/api/user/check`)
+        .then(() => {
+          this.getProducts();
+        })
+        .catch(() => {
+          this.$router.push('/login');
+        });
+    },
   },
   mounted() {
-    console.log(this.$refs.myModal, 'this.$refs.myModal');
+    // console.log(this.$refs.myModal, 'this.$refs.myModal');
+    this.signinCheck();
     this.productModal = new Modal(this.$refs.myModal);
+    this.deleteModal = new Modal(this.$refs.delModal);
     this.getProducts();
   },
 };

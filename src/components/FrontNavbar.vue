@@ -13,8 +13,15 @@
         <router-link class="nav-item nav-link me-4" to="/login">Login</router-link>
         <router-link class="nav-item nav-link me-4" to="/products">Products</router-link>
         <router-link class="nav-item nav-link me-4" to="/cart">Cart</router-link>
-        <!-- <router-link class="nav-item nav-link me-4" to="about-products">
-          About-Products</router-link> -->
+        <router-link class="nav-item nav-link me-4" to="/about-products">
+          About-Products
+        </router-link>
+        <router-link class="nav-item nav-link me-4" to="/about-order">
+          about-order
+        </router-link>
+        <router-link class="nav-item nav-link me-4" to="/about-coupon">
+          about-coupon
+        </router-link>
       </div>
     </div>
   </nav>

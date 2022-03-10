@@ -7,7 +7,6 @@
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-
       <div class="modal-body">
         <div class="row">
           <div class="col-sm-4">
@@ -117,12 +116,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" @click="$emit('hide-model')">
+        <button type="button" class="btn btn-outline-secondary" @click="hideModel()">
           取消
         </button>
         <template v-if="isediting">
           <button v-if="!loading" type="button" class="btn btn-primary"
-            @click="$emit('edit-product')">
+            @click="editProduct(productProp)">
           編輯
         </button>
         <div v-if="loading" class="spinner-border text-primary" role="status">
@@ -131,7 +130,7 @@
         </template>
         <template v-else>
           <button v-if="!loading" type="button" class="btn btn-primary"
-            @click="$emit('upload-product')">
+            @click="uploadProduct(productProp)">
             建立
           </button>
           <div v-if="loading" class="spinner-border text-primary" role="status">
@@ -155,6 +154,16 @@ export default {
     };
   },
   methods: {
+    // emit
+    uploadProduct(productProp) {
+      this.$emit('upload-product', productProp);
+    },
+    editProduct(productProp) {
+      this.$emit('edit-product', productProp);
+    },
+    hideModel() {
+      this.$emit('hide-model');
+    },
     addImg() {
       this.productProp.imagesUrl.push('');
     },
@@ -185,20 +194,24 @@ export default {
         .then((response) => {
           console.log(response, 'imgUpload');
           alert('上傳成功');
-          // this.hideModel()
-          // this.getProducts()
         })
         .catch(() => {
           alert('上傳失敗');
-          // console.log(err, 'err')
-          // this.hideModel()
-          // this.loading = false
         });
     },
+  },
+  watch: {
+    'product.title': function () {
+      console.log(this.productProp, this.product);
+      this.productProp = this.product;
+    },
+  },
+  mounted() {
+    this.productProp = this.product;
+    console.log('子元建');
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 </style>

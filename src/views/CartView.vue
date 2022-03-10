@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <button @click="tst">asdad</button>
     <div class="row justify-content-center">
       <div class="col-md-6">
         <h1>購物車</h1>
@@ -299,6 +300,9 @@ export default {
     showProductModel(product) {
       this.product = product;
       this.productModal.show();
+    },
+    tst() {
+      this.$refs.form.resetForm();
     },
   },
   mounted() {
