@@ -59,6 +59,7 @@
       ref="orderModal"
     >
       <OrderModal
+        :loading="loading"
         :order="order"
         @update-order="updateOrder"
       ></OrderModal>
@@ -151,6 +152,7 @@ export default {
           is_paid: order.is_paid,
         },
       };
+      this.loading = true;
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/order/${order.id}`;
       this.axios.put(url, data)
         .then((response) => {

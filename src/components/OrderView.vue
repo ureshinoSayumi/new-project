@@ -116,6 +116,7 @@
       </div>
       <div class="modal-footer">
         <button
+          v-if="!loading"
           type="button"
           class="btn btn-outline-secondary"
           data-bs-dismiss="modal"
@@ -123,12 +124,16 @@
           取消
         </button>
         <button
+          v-if="!loading"
           type="button"
           class="btn btn-primary"
           @click="updateOrder(propsOrder)"
         >
           修改付款狀態
         </button>
+        <div v-if="loading" class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
     </div>
   </div>
@@ -140,6 +145,10 @@ export default {
     order: {
       type: Object,
       default() { return {}; },
+    },
+    loading: {
+      type: Boolean,
+      default() { return false; },
     },
   },
   data() {
@@ -159,11 +168,9 @@ export default {
   watch: {
     order() {
       this.propsOrder = this.order;
-      console.log(this.propsOrder, '原建');
     },
   },
   mounted() {
-    console.log(this.propsOrder, 'this.order');
   },
 };
 </script>

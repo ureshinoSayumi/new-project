@@ -12,9 +12,6 @@
           aria-label="Close"
         ></button>
       </div>
-      <!-- <div class="modal-body">
-        <h1>{{ propsCoupon }}</h1>
-      </div> -->
       <div class="modal-body">
         <div class="row justify-content-center">
           <div class="col-sm-8">
@@ -30,8 +27,6 @@
                 <input type="date" class="form-control" id="due_date"
                   v-model="due_date"
                   placeholder="請輸入日期">
-                <!-- <input type="date" class="form-control" id="due_date"
-                  v-model="due_date"> -->
               </div>
               <div class="form-group mb-3">
                 <label for="price">代碼</label>
@@ -65,12 +60,15 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary"
-          data-dismiss="modal">取消</button>
-        <button v-if="!isedit" type="button" class="btn btn-primary"
+        <button v-if="!loading" type="button" class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">取消</button>
+        <button v-if="!isedit && !loading" type="button" class="btn btn-primary"
           @click="createCoupon()">確認新增</button>
-        <button v-if="isedit" type="button" class="btn btn-primary"
+        <button v-if="isedit && !loading" type="button" class="btn btn-primary"
           @click="editCoupon()">確認編輯</button>
+        <div v-if="loading" class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
     </div>
   </div>
@@ -87,6 +85,10 @@ export default {
       type: Boolean,
       default() { return false; },
     },
+    loading: {
+      type: Boolean,
+      default() { return false; },
+    },
   },
   data() {
     return {
@@ -98,7 +100,6 @@ export default {
   methods: {
     createCoupon() {
       this.propsCoupon.due_date = Math.floor(new Date(this.due_date) / 1000);
-      this.due_date = null;
       if (!this.propsCoupon.is_enabled) {
         this.propsCoupon.is_enabled = 0;
       }
@@ -111,11 +112,17 @@ export default {
   watch: {
     coupon() {
       this.propsCoupon = this.coupon;
-      console.log(this.isedit, 'isedit');
+      const date = new Date(this.coupon.due_date * 1000);
+      const year = date.getFullYear();
+      let month = date.getMonth() + 1; // 從0開始算一月的，所以要加一才會是正確的月份
+      let day = date.getDate();
+      // 如果是個位數就在前加 0
+      month = month.toString().length === 1 ? `0${month.toString()}` : month;
+      day = day.toString().length === 1 ? `0${day.toString()}` : day;
+      this.due_date = `${year}-${month}-${day}`;
     },
   },
   mounted() {
-    console.log(this.propsCoupon, this.isEdit, 'this.coupon');
   },
 };
 </script>

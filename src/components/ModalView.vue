@@ -18,9 +18,13 @@
               </div>
               <div class="mb-3">
                 <button
+                  v-if="!proploading"
                   class="btn btn-outline-primary btn-sm d-block w-100" @click="imgUpload">
                   上傳圖片
                 </button>
+                <div v-if="proploading" class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
               </div>
               <img class="img-fluid" :src="file" alt="">
             </div>
@@ -151,6 +155,7 @@ export default {
     return {
       file: 'modal',
       productProp: this.product,
+      proploading: false,
     };
   },
   methods: {
@@ -162,6 +167,9 @@ export default {
       this.$emit('edit-product', productProp);
     },
     hideModel() {
+      this.$refs.fileInput.value = null;
+      this.file = null;
+      console.log(this.$refs.fileInput.outerHTML);
       this.$emit('hide-model');
     },
     addImg() {
@@ -186,13 +194,25 @@ export default {
     },
     imgUpload() {
       if (!this.file) return;
-      const url = 'https://vue3-course-api.hexschool.io/v2';
+      this.proploading = true;
       const formData = new FormData();
       formData.append('file-to-upload', this.$refs.fileInput.files[0]);
-      // console.log(this.$refs.fileInput.files, 'refs')
-      this.axios.post(`${url}/api/ciye-project/admin/upload`, formData)
+      this.axios.post(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/upload`, formData)
         .then((response) => {
+          this.$refs.fileInput.value = null;
+          this.file = null;
           console.log(response, 'imgUpload');
+          // this.file.outerHTML = null;
+          // for (let i = 0; i < this.productProp.imagesUrl.length; i += 1) {
+          //   if (this.productProp.imagesUrl[i] === null) {
+          //     this.productProp.imagesUrl[i] = response.data.imageUrl;
+          //     break;
+          //   }
+          // }
+          this.productProp.imagesUrl[0] = response.data.imageUrl;
+          // this.productProp.imagesUrl.push(response.data.imageUrl);
+          console.log(this.$refs.fileInput.files[0]);
+          this.proploading = false;
           alert('上傳成功');
         })
         .catch(() => {

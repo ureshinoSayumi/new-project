@@ -54,6 +54,7 @@
       ref="couponModal"
     >
       <CouponModal
+        :loading="loading"
         :coupon="coupon"
         :isedit="isEdit"
         @create-coupon="createCoupon"
@@ -139,8 +140,7 @@ export default {
       const data = {
         data: item,
       };
-      console.log(data, 'adsw');
-      // this.$emit('update-coupon', item);
+      this.loading = true;
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/coupon`;
       this.axios.post(url, data)
         .then((response) => {
@@ -158,12 +158,11 @@ export default {
       const data = {
         data: item,
       };
-      console.log(data, 'editCoupon');
-      // this.$emit('update-coupon', item);
+      this.loading = true;
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/coupon/${item.id}`;
       this.axios.put(url, data)
         .then((response) => {
-          console.log(response, 'createCoupon');
+          console.log(response, 'editCoupon');
           this.getCoupons();
           this.couponModal.hide();
           alert('編輯完成');
@@ -181,18 +180,17 @@ export default {
         this.isEdit = false;
         this.coupon = {};
       }
-      console.log(clickCoupon, this.isEdit, 'showModal');
       this.couponModal.show();
     },
     showDeleteModal(clickCoupon) {
       this.coupon = clickCoupon;
-      console.log(this.coupon);
       this.deleteModal.show();
     },
     hideModal() {
       this.deleteModal.hide();
     },
     deletecoupon() {
+      this.loading = true;
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/coupon/${this.coupon.id}`;
       console.log(url);
       this.axios.delete(url)

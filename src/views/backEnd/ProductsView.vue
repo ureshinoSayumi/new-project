@@ -220,7 +220,6 @@ export default {
         .catch((err) => {
           alert('上傳失敗');
           console.log(err, 'err');
-          this.hideModel();
           this.loading = false;
         });
     },
