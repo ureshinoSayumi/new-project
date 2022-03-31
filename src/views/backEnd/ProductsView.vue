@@ -132,7 +132,7 @@ export default {
   },
   methods: {
     getProducts(page = 1) {
-      this.axios.get(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/products?page=${page}`)
+      this.axios.get(`${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/products?page=${page}`)
         .then((response) => {
           console.log(response, 'getProducts');
           this.products = response.data.products;
@@ -168,6 +168,7 @@ export default {
         this.modalTitle = '編輯產品';
         this.isEditing = true;
         this.product = JSON.parse(JSON.stringify(product));
+        console.log(this.product, 'this.product');
       } else {
         this.modalTitle = '新增產品';
         this.isEditing = false;

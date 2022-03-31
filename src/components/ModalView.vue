@@ -201,16 +201,16 @@ export default {
         .then((response) => {
           this.$refs.fileInput.value = null;
           this.file = null;
-          console.log(response, 'imgUpload');
-          // this.file.outerHTML = null;
-          // for (let i = 0; i < this.productProp.imagesUrl.length; i += 1) {
-          //   if (this.productProp.imagesUrl[i] === null) {
-          //     this.productProp.imagesUrl[i] = response.data.imageUrl;
-          //     break;
-          //   }
-          // }
-          this.productProp.imagesUrl[0] = response.data.imageUrl;
-          // this.productProp.imagesUrl.push(response.data.imageUrl);
+          if (this.productProp.imageUrl) {
+            // 多圖上傳這欄位如果沒值，會回傳一個有一個 '' 的陣列，如果直接 push 會出現一個空值。
+            if (this.productProp.imagesUrl[0]) {
+              this.productProp.imagesUrl.push(response.data.imageUrl);
+            } else {
+              this.productProp.imagesUrl[0] = response.data.imageUrl;
+            }
+          } else {
+            this.productProp.imageUrl = response.data.imageUrl;
+          }
           console.log(this.$refs.fileInput.files[0]);
           this.proploading = false;
           alert('上傳成功');

@@ -55,6 +55,8 @@ export default {
           const { token, expired } = response.data;
           document.cookie = `hexToken=${token};expires=${new Date(expired)}; path=/`;
           console.log('登入成功');
+          this.$store.commit('updateAuth', true);
+          this.$router.push('/');
           // window.location = 'products.html';
           this.loading = false;
         })

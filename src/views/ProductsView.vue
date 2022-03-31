@@ -1,6 +1,53 @@
 <template>
   <div class="container">
-    <div class="mt-4">
+    <div class="row">
+      <div class="col-lg-2 bg-dark">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Special title treatment</h5>
+            <p class="card-text">With supporting text
+              below as a natural lead-in to additional content.</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-10">
+        <MultiSelect></MultiSelect>
+        <div class="row justify-content-xl-start justify-content-sm-center">
+          <div class="col-lg-3 mb-3" style="width: 17rem;"
+            v-for="(product, index) in allProducts" :key="index">
+            <!-- style="width: 18rem;" -->
+            <div class="card">
+              <div class="card-img"
+                :style="{backgroundImage: `url(${product.imageUrl})`}"></div>
+              <div class="card-body">
+                <h5 class="card-title">{{ product.title }}</h5>
+                <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                <div class="btn-group btn-group-sm d-flex">
+                  <button type="button" class="btn btn-outline-secondary"
+                    @click="pushRouter(product.id)">
+                    <i v-if="loading" class="fas fa-spinner fa-pulse"></i>
+                    產品細項
+                  </button>
+                  <button type="button" class="btn btn-outline-danger"
+                    @click="inputCart(product.id)">
+                    <i v-if="loading" class="fas fa-spinner fa-pulse"></i>
+                    加到購物車
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- page -->
+    <PagesView
+      class="d-flex justify-content-center"
+      :pages="pagination"
+      @emit-pages="getProducts"
+    ></PagesView>
+    <div v-if="false" class="mt-4">
       <table class="table align-middle">
         <thead>
           <tr>
@@ -47,8 +94,6 @@
         </tbody>
       </table>
     </div>
-    <!-- page -->
-    <PagesView :pages="pagination" @emit-pages="getProducts"></PagesView>
     <!-- modal -->
     <div class="modal" tabindex="-1" id="myModal" ref="myModal">
       <div class="modal-dialog modal-xl" role="document">
@@ -95,10 +140,12 @@
 <script>
 import Modal from 'bootstrap/js/dist/modal';
 import PagesView from '../components/PagesView.vue';
+import MultiSelect from '../components/MultiSelect.vue';
 
 export default {
   components: {
     PagesView,
+    MultiSelect,
   },
   data() {
     return {
@@ -138,6 +185,10 @@ export default {
           this.allProducts = response.data.products;
           this.pagination = response.data.pagination;
           this.loading = false;
+          window.scrollTo({
+            top: 0,
+            behavior: 'instant',
+          });
         })
         .catch((error) => {
           console.log(error, 'getProducts');
@@ -188,14 +239,33 @@ export default {
       console.log(id);
       this.$router.push(`/product/${id}`);
     },
+    // http://opendata2.epa.gov.tw/UV/UV.json
+    getData() {
+      this.loading = true;
+      this.axios.get('https://datacenter.taichung.gov.tw/swagger/OpenData/67a71376-d2dc-4a77-838d-c5ac1916929f')
+        .then((response) => {
+          console.log(response, 'asdasdas');
+        })
+        .catch(() => {
+          this.loading = false;
+        });
+    },
   },
   mounted() {
+    // this.$store.commit('updateAuth', 'updateAuth');
+    // console.log(this.$store.state.isLogged);
     console.log(this.$refs.myModal, 'this.$refs.myModal');
     this.productModal = new Modal(this.$refs.myModal);
     this.getProducts();
+    this.getData();
   },
 };
 </script>
 
 <style lang="scss">
+.card-img {
+  height: 250px;
+  background-size: cover;
+  background-position: center;
+}
 </style>
